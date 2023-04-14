@@ -1,9 +1,13 @@
+mod event_loop;
+
+use crate::event_loop::Command;
 use env_logger::Env;
-use futures::stream::StreamExt;
+use futures::channel::mpsc;
+use futures::SinkExt;
 use libp2p::swarm::keep_alive;
 use libp2p::{
-    core::upgrade::Version, dns, identify, identity, noise, ping, swarm::SwarmBuilder,
-    swarm::SwarmEvent, tcp, yamux, Multiaddr, Transport,
+    core::upgrade::Version, dns, identify, identity, noise, ping, swarm::SwarmBuilder, tcp, yamux,
+    Transport,
 };
 
 const BOOTSTRAP_NODE: &str = "/dns4/libp2p-workshop-bootnode.fly.dev/tcp/9999";
@@ -24,47 +28,26 @@ async fn main() -> anyhow::Result<()> {
         .multiplex(yamux::YamuxConfig::default())
         .boxed();
 
-    let mut swarm = SwarmBuilder::with_async_std_executor(
+    let swarm = SwarmBuilder::with_async_std_executor(
         transport,
         Behaviour::new(local_key.public()),
         local_peer_id,
     )
     .build();
 
-    swarm.dial(BOOTSTRAP_NODE.parse::<Multiaddr>()?)?;
+    let (mut sender, receiver) = mpsc::channel(1);
 
-    loop {
-        match swarm.next().await.unwrap() {
-            SwarmEvent::ConnectionEstablished { endpoint, .. } => {
-                log::info!("New connection to {}", endpoint.get_remote_address());
-            }
-            SwarmEvent::ConnectionClosed { endpoint, .. } => {
-                log::info!("Closed connection to {}", endpoint.get_remote_address());
-            }
-            SwarmEvent::Behaviour(BehaviourEvent::Ping(ping::Event {
-                peer,
-                result: Ok(ping::Success::Ping { rtt }),
-            })) => {
-                log::info!("RTT to {peer} is {}ms", rtt.as_millis());
-            }
-            SwarmEvent::Behaviour(BehaviourEvent::Identify(identify::Event::Received {
-                peer_id,
-                info,
-            })) => {
-                log::info!(
-                    "Peer {peer_id} supports protocols: {}",
-                    info.protocols.join(",")
-                );
-            }
-            e => {
-                log::debug!("{:?}", e)
-            }
-        }
-    }
+    async_std::task::spawn(event_loop::run(swarm, receiver));
+
+    sender.send(Command::Dial(BOOTSTRAP_NODE.parse()?)).await?;
+
+    futures::future::pending::<()>().await;
+
+    Ok(())
 }
 
 #[derive(libp2p::swarm::NetworkBehaviour)]
-struct Behaviour {
+pub struct Behaviour {
     ping: ping::Behaviour,
     keep_alive: keep_alive::Behaviour,
     identify: identify::Behaviour,
