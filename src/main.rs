@@ -1,5 +1,6 @@
 use env_logger::Env;
 use futures::stream::StreamExt;
+use libp2p::swarm::keep_alive;
 use libp2p::{
     core::upgrade::Version, dns, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent,
     tcp, yamux, Multiaddr, Transport,
@@ -23,32 +24,35 @@ async fn main() -> anyhow::Result<()> {
         .multiplex(yamux::YamuxConfig::default())
         .boxed();
 
-    let mut swarm = SwarmBuilder::with_async_std_executor(
-        transport,
-        ping::Behaviour::new(ping::Config::default()),
-        local_peer_id,
-    )
-    .build();
+    let mut swarm =
+        SwarmBuilder::with_async_std_executor(transport, Behaviour::default(), local_peer_id)
+            .build();
 
     swarm.dial(BOOTSTRAP_NODE.parse::<Multiaddr>()?)?;
 
     loop {
         match swarm.next().await.unwrap() {
             SwarmEvent::ConnectionEstablished { endpoint, .. } => {
-                log::info!("New connection to {}.", endpoint.get_remote_address());
+                log::info!("New connection to {}", endpoint.get_remote_address());
             }
             SwarmEvent::ConnectionClosed { endpoint, .. } => {
-                log::info!("Closed connection to {}.", endpoint.get_remote_address());
+                log::info!("Closed connection to {}", endpoint.get_remote_address());
             }
-            SwarmEvent::Behaviour(ping::Event {
+            SwarmEvent::Behaviour(BehaviourEvent::Ping(ping::Event {
                 peer,
                 result: Ok(ping::Success::Ping { rtt }),
-            }) => {
-                log::info!("RTT tp {peer} is {}s", rtt.as_secs());
+            })) => {
+                log::info!("RTT to {peer} is {}ms", rtt.as_millis());
             }
             e => {
                 log::debug!("{:?}", e)
             }
         }
     }
+}
+
+#[derive(libp2p::swarm::NetworkBehaviour, Default)]
+struct Behaviour {
+    ping: ping::Behaviour,
+    keep_alive: keep_alive::Behaviour,
 }
