@@ -15,24 +15,17 @@ give hands-on experience on how to build peer-to-peer vs. client-to-server.
 
    https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 
-2. Install Rust Programming Language.
+1. Install Rust Programming Language.
 
    https://www.rust-lang.org/tools/install
 
-3. Install Protoc, the Protobuf compiler.
-
-   - https://github.com/protocolbuffers/protobuf#protocol-compiler-installation
-   - Linux / MacOS: <https://grpc.io/docs/protoc-installation/>
-   - Windows: <https://www.geeksforgeeks.org/how-to-install-protocol-buffers-on-windows/>
-
-
-4. Clone this repository.
+1. Clone this repository.
 
    ```sh
    $ git clone https://github.com/mxinden/libp2p-workshop.git
    ```
 
-5. Make sure you can compile the _hello world_ program in this repository on the
+1. Make sure you can compile the _hello world_ program in this repository on the
    `main` branch.
 
    ```sh
