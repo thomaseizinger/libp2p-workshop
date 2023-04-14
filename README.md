@@ -9,41 +9,23 @@ application will allow anyone with internet access across the globe to
 communicate without depending on any central infrastructure. The workshop will
 give hands-on experience on how to build peer-to-peer vs. client-to-server.
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-**Table of Contents**
-
-- [Before the workshop](#before-the-workshop)
-- [Workshop](#workshop)
-- [Iteration 1](#iteration-1)
-- [Additional Resources](#additional-resources)
-    - [Libp2p](#libp2p)
-    - [Rust Programming Language](#rust-programming-language)
-
-<!-- markdown-toc end -->
-
 ## Before the workshop
 
 1. Install git.
 
    https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 
-2. Install Rust Programming Language.
+1. Install Rust Programming Language.
 
    https://www.rust-lang.org/tools/install
 
-3. Install Protoc, the Protobuf compiler.
-
-   - https://github.com/protocolbuffers/protobuf#protocol-compiler-installation
-   - Linux / MacOS: <https://grpc.io/docs/protoc-installation/>
-   - Windows: <https://www.geeksforgeeks.org/how-to-install-protocol-buffers-on-windows/>
-
-4. Clone this repository.
+1. Clone this repository.
 
    ```sh
    $ git clone https://github.com/mxinden/libp2p-workshop.git
    ```
 
-5. Make sure you can compile the _hello world_ program in this repository on the
+1. Make sure you can compile the _hello world_ program in this repository on the
    `main` branch.
 
    ```sh
