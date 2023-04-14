@@ -1,7 +1,10 @@
 use clap::Parser;
 use env_logger::Env;
 use futures::stream::StreamExt;
-use libp2p::{identity, ping, swarm::SwarmEvent, Multiaddr, PeerId, Swarm};
+use libp2p::{
+    core::upgrade::Version, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent, tcp,
+    yamux, Multiaddr, Transport,
+};
 use std::error::Error;
 
 #[derive(Debug, Parser)]
@@ -18,31 +21,37 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Create a random PeerId
     let local_key = identity::Keypair::generate_ed25519();
-    let local_peer_id = PeerId::from(local_key.public());
-    log::info!("Local peer id: {:?}", local_peer_id);
+    let local_peer_id = local_key.public().to_peer_id();
+    log::info!("Local peer id: {local_peer_id}");
 
-    // Set up an encrypted DNS-enabled TCP Transport over the Mplex and Yamux protocols
-    let transport = libp2p::development_transport(local_key).await?;
+    let transport = tcp::async_io::Transport::default()
+        .upgrade(Version::V1Lazy)
+        .authenticate(noise::NoiseAuthenticated::xx(&local_key)?)
+        .multiplex(yamux::YamuxConfig::default())
+        .boxed();
 
-    #[allow(deprecated)]
-    let mut swarm = Swarm::new(
+    let mut swarm = SwarmBuilder::with_async_std_executor(
         transport,
-        ping::Behaviour::new(ping::Config::default().with_keep_alive(true)),
+        ping::Behaviour::new(ping::Config::default()),
         local_peer_id,
-    );
+    )
+    .build();
 
     swarm.dial(opts.bootstrap_node)?;
 
     loop {
         match swarm.next().await.unwrap() {
             SwarmEvent::ConnectionEstablished { endpoint, .. } => {
-                log::info!("Connected to {}.", endpoint.get_remote_address());
+                log::info!("New connection to {}.", endpoint.get_remote_address());
+            }
+            SwarmEvent::ConnectionClosed { endpoint, .. } => {
+                log::info!("Closed connection to {}.", endpoint.get_remote_address());
             }
             SwarmEvent::Behaviour(ping::Event {
                 peer,
                 result: Ok(ping::Success::Ping { rtt }),
             }) => {
-                log::info!("Received Pong from {}. RTT {:?}.", peer, rtt);
+                log::info!("RTT tp {peer} is {}s", rtt.as_secs());
             }
             e => {
                 log::debug!("{:?}", e)

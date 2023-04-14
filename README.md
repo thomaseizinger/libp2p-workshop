@@ -39,8 +39,7 @@ Done? Great. You are all set for the workshop.
 
 ## Workshop
 
-Let's start with the [first iteration](
-https://github.com/mxinden/libp2p-workshop/blob/iteration-1/README.md#iteration-1).
+Let's start with the [first iteration](https://github.com/mxinden/libp2p-workshop/blob/iteration-1/README.md#iteration-1).
 
 ## Iteration 1
 
@@ -50,33 +49,19 @@ In case you are still on branch `main` switch over to branch `iteration-1`.
 $ git checkout iteration-1
 ```
 
-In this iteration, we will have our node implementation connect to a bootstrap
-node. More particularly we will connect to the node below:
+In this iteration, we will have our node implementation connect to a bootstrap node.
 
-```
-/ip4/18.237.216.248/tcp/7654/p2p/12D3KooWSrPEpy6z9gbvxWhCQYTKmZcpkwTUyUDtoF2KzcrC4y5K
-```
-
-For those interested, the above is a
-[multiaddr](https://github.com/multiformats/multiaddr). Composable and
-future-proof network addresses.
+For those interested, the above is a[multiaddr](https://github.com/multiformats/multiaddr).
+Composable and future-proof network addresses.
 
 To connect to the bootstrap node, run the command below:
 
-```
-$ cargo run -- --bootstrap-node /ip4/18.237.216.248/tcp/7654/p2p/12D3KooWSrPEpy6z9gbvxWhCQYTKmZcpkwTUyUDtoF2KzcrC4y5K
+[//]: # (TODO add command)
 
-[2022-10-19T09:40:37Z INFO  libp2p_workshop_node] Local peer id: PeerId("12D3KooWKNVqDoWEafi8vSVETbxXBBvWuPZRhfCqsRzXq9gc2UjK")
-[2022-10-19T09:40:38Z INFO  libp2p_workshop_node] Connected to /ip4/18.237.216.248/tcp/7654/p2p/12D3KooWSrPEpy6z9gbvxWhCQYTKmZcpkwTUyUDtoF2KzcrC4y5K.
-```
+Given that both nodes run the [Ping protocol](https://docs.rs/libp2p-ping/latest/libp2p_ping/), they exchange Ping-Pong style messages.
+You should see the results of these message exchanges printed as logs along with the round-trip-time (RTT).
 
-Given that both nodes run the [Ping
-protocol](https://docs.rs/libp2p-ping/latest/libp2p_ping/), they exchange
-Ping-Pong style messages. You should see the results of these message exchanges
-printed as logs along with the round-trip-time (RTT).
-
-Let's move on to [iteration two](
-https://github.com/mxinden/libp2p-workshop/blob/iteration-2/README.md#iteration-2).
+Let's move on to [iteration two](https://github.com/mxinden/libp2p-workshop/blob/iteration-2/README.md#iteration-2).
 
 ## Additional Resources
 
