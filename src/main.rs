@@ -1,15 +1,14 @@
 use env_logger::Env;
 use futures::stream::StreamExt;
 use libp2p::{
-    core::upgrade::Version, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent, tcp,
-    yamux, Multiaddr, Transport, dns
+    core::upgrade::Version, dns, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent,
+    tcp, yamux, Multiaddr, Transport,
 };
-use std::error::Error;
 
 const BOOTSTRAP_NODE: &str = "/dns4/libp2p-workshop-bootnode.fly.dev/tcp/9999";
 
 #[async_std::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> anyhow::Result<()> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     // Create a random PeerId
@@ -17,7 +16,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let local_peer_id = local_key.public().to_peer_id();
     log::info!("Local peer id: {local_peer_id}");
 
-    let transport = dns::DnsConfig::system(tcp::async_io::Transport::default()).await?
+    let transport = dns::DnsConfig::system(tcp::async_io::Transport::default())
+        .await?
         .upgrade(Version::V1Lazy)
         .authenticate(noise::NoiseAuthenticated::xx(&local_key)?)
         .multiplex(yamux::YamuxConfig::default())

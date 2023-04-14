@@ -1356,6 +1356,7 @@ dependencies = [
 name = "libp2p-workshop-node"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-std",
  "env_logger",
  "futures",
