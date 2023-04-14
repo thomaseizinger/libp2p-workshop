@@ -11,4 +11,4 @@ env_logger = "0.9.0"
 futures = "0.3"
 log = "0.4"
 anyhow = "1.0.70"
-libp2p = { version = "0.51.3", features = ["async-std", "yamux", "tcp", "noise", "ping", "dns", "macros", "identify"] }
+libp2p = { version = "0.51.3", features = ["async-std", "yamux", "tcp", "noise", "ping", "dns", "macros", "identify", "gossipsub"] }
