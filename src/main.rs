@@ -2,8 +2,8 @@ use env_logger::Env;
 use futures::stream::StreamExt;
 use libp2p::swarm::keep_alive;
 use libp2p::{
-    core::upgrade::Version, dns, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent,
-    tcp, yamux, Multiaddr, Transport,
+    core::upgrade::Version, dns, identify, identity, noise, ping, swarm::SwarmBuilder,
+    swarm::SwarmEvent, tcp, yamux, Multiaddr, Transport,
 };
 
 const BOOTSTRAP_NODE: &str = "/dns4/libp2p-workshop-bootnode.fly.dev/tcp/9999";
@@ -24,9 +24,12 @@ async fn main() -> anyhow::Result<()> {
         .multiplex(yamux::YamuxConfig::default())
         .boxed();
 
-    let mut swarm =
-        SwarmBuilder::with_async_std_executor(transport, Behaviour::default(), local_peer_id)
-            .build();
+    let mut swarm = SwarmBuilder::with_async_std_executor(
+        transport,
+        Behaviour::new(local_key.public()),
+        local_peer_id,
+    )
+    .build();
 
     swarm.dial(BOOTSTRAP_NODE.parse::<Multiaddr>()?)?;
 
@@ -44,6 +47,15 @@ async fn main() -> anyhow::Result<()> {
             })) => {
                 log::info!("RTT to {peer} is {}ms", rtt.as_millis());
             }
+            SwarmEvent::Behaviour(BehaviourEvent::Identify(identify::Event::Received {
+                peer_id,
+                info,
+            })) => {
+                log::info!(
+                    "Peer {peer_id} supports protocols: {}",
+                    info.protocols.join(",")
+                );
+            }
             e => {
                 log::debug!("{:?}", e)
             }
@@ -51,8 +63,22 @@ async fn main() -> anyhow::Result<()> {
     }
 }
 
-#[derive(libp2p::swarm::NetworkBehaviour, Default)]
+#[derive(libp2p::swarm::NetworkBehaviour)]
 struct Behaviour {
     ping: ping::Behaviour,
     keep_alive: keep_alive::Behaviour,
+    identify: identify::Behaviour,
+}
+
+impl Behaviour {
+    fn new(local_key: identity::PublicKey) -> Self {
+        Self {
+            ping: ping::Behaviour::default(),
+            keep_alive: keep_alive::Behaviour,
+            identify: identify::Behaviour::new(identify::Config::new(
+                "/libp2p-workshop/1.0.0".into(),
+                local_key,
+            )),
+        }
+    }
 }
