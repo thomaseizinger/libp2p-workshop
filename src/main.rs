@@ -1,30 +1,23 @@
-use clap::Parser;
 use env_logger::Env;
 use futures::stream::StreamExt;
 use libp2p::{
     core::upgrade::Version, identity, noise, ping, swarm::SwarmBuilder, swarm::SwarmEvent, tcp,
-    yamux, Multiaddr, Transport,
+    yamux, Multiaddr, Transport, dns
 };
 use std::error::Error;
 
-#[derive(Debug, Parser)]
-#[clap(name = "libp2p-workshop-node")]
-struct Opts {
-    #[clap(long)]
-    bootstrap_node: Multiaddr,
-}
+const BOOTSTRAP_NODE: &str = "/dns4/libp2p-workshop-bootnode.fly.dev/tcp/9999";
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-    let opts = Opts::parse();
 
     // Create a random PeerId
     let local_key = identity::Keypair::generate_ed25519();
     let local_peer_id = local_key.public().to_peer_id();
     log::info!("Local peer id: {local_peer_id}");
 
-    let transport = tcp::async_io::Transport::default()
+    let transport = dns::DnsConfig::system(tcp::async_io::Transport::default()).await?
         .upgrade(Version::V1Lazy)
         .authenticate(noise::NoiseAuthenticated::xx(&local_key)?)
         .multiplex(yamux::YamuxConfig::default())
@@ -37,7 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .build();
 
-    swarm.dial(opts.bootstrap_node)?;
+    swarm.dial(BOOTSTRAP_NODE.parse::<Multiaddr>()?)?;
 
     loop {
         match swarm.next().await.unwrap() {
