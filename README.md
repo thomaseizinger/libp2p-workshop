@@ -38,11 +38,6 @@ give hands-on experience on how to build peer-to-peer vs. client-to-server.
 
 Done? Great. You are all set for the workshop.
 
-## Workshop
-
-Let's start with the [first iteration](
-https://github.com/mxinden/libp2p-workshop/blob/iteration-1/README.md#iteration-1).
-
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
