@@ -30,7 +30,6 @@ give hands-on experience on how to build peer-to-peer vs. client-to-server.
 
    ```sh
    $ cargo run
-
    Finished dev [unoptimized + debuginfo] target(s) in 0.04s
    Running `target/debug/libp2p-workshop-node`
    Hello, world!
