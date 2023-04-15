@@ -55,13 +55,17 @@ For iteration 1, we want to achieve the following things:
 
 ### Iteration 2
 
-You may notice that once you connection is established, it is immediately closed again.
+You may notice that once the connection is established, it is immediately closed again.
 This is because libp2p by default closes idle connections and our connection doesn't do anything interesting.
 For workshop purposes, we can fix that by adding the `keep_alive` behaviour to our swarm.
+
+This way, we are going to learn how to compose multiple behaviours together to form an application.
 
 Create a new `Behaviour` struct and compose it with the `ping::Behaviour` and the `keep_alive::Behaviour`.
 Then, replace the `ping::Behaviour` in the swarm with your new `Behaviour` struct.
 Make sure to derive `libp2p::swarm::NetworkBehaviour` on it.
+
+Additionally, activate the `identify` feature and compose the `identify` behaviour into the event.
 
 ## Additional Resources
 
