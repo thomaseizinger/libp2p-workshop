@@ -67,6 +67,18 @@ Make sure to derive `libp2p::swarm::NetworkBehaviour` on it.
 
 Additionally, activate the `identify` feature and compose the `identify` behaviour into the event.
 
+### Iteration 3
+
+In iteration 3, we are going to abstract away the networking event loop in our application.
+
+Take the loop and extract it into an `async fn`.
+Additionally, add a bounded `futures` mpsc channel and use `futures::future::select` to poll the swarm and the channel.
+
+This allows us to continuously poll the swarm for new events while also being able to send messages to it.
+
+We are going to model the messages as an `enum`, for now we only need one message: `Dial`.
+It should take a `Multiaddr` and instruct the `Swarm` to dial it.
+
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
