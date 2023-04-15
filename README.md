@@ -53,6 +53,16 @@ For iteration 1, we want to achieve the following things:
 - Closed connections
 - ping round-trip time
 
+### Iteration 2
+
+You may notice that once you connection is established, it is immediately closed again.
+This is because libp2p by default closes idle connections and our connection doesn't do anything interesting.
+For workshop purposes, we can fix that by adding the `keep_alive` behaviour to our swarm.
+
+Create a new `Behaviour` struct and compose it with the `ping::Behaviour` and the `keep_alive::Behaviour`.
+Then, replace the `ping::Behaviour` in the swarm with your new `Behaviour` struct.
+Make sure to derive `libp2p::swarm::NetworkBehaviour` on it.
+
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
