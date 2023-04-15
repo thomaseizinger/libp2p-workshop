@@ -85,6 +85,36 @@ Then, spawn the event loop in a separate task.
 
 To make sure the main function doesn't exit, we can await a `futures::future::pending` to "park" the main thread.
 
+### Iteration 4
+
+In iteration 4, we are going to add a chat behaviour to our application.
+To send messages, we are going to use the `gossipsub` behaviour.
+Activate the `gossipsub` feature and add the `gossipsub::Behaviour` to our `Behaviour` struct.
+
+At the top of the event loop, subscribe to the "workshop-chat" topic using the `subscribe` function on the `gossipsub::Behaviour`.
+
+Then, add a new message to the `enum` that we are using for messages: `Publish`.
+It should take a `String` and instruct the `gossipsub::Behaviour` to publish a message to the "workshop-chat" topic.
+
+In the event loop, handle the `Publish` message by calling the `publish` function on the `gossipsub::Behaviour`.
+
+Additionally, we need to print incoming messages by handling the `SwarmEvent::Behaviour(BehaviourEvent::Gossipsub(gossipsub::Event::Message))` event.
+
+In our `fn main`, we can now wait for messages on stdin and publish them via the MPSC channel.
+The APIs you need are:
+
+- `async_std::io::stdin`
+- `async_std::io::BufReader`
+- `async_std::io::BufRead::lines`
+
+We want the following format for our messages:
+
+```text
+send:<msg>
+dial:<addr>
+quit
+```
+
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
