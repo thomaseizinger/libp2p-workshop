@@ -79,6 +79,12 @@ This allows us to continuously poll the swarm for new events while also being ab
 We are going to model the messages as an `enum`, for now we only need one message: `Dial`.
 It should take a `Multiaddr` and instruct the `Swarm` to dial it.
 
+Instead of dialing the bootnode within `fn main`, we instead want to send the message through the channel.
+
+Then, spawn the event loop in a separate task.
+
+To make sure the main function doesn't exit, we can await a `futures::future::pending` to "park" the main thread.
+
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
