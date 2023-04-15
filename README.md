@@ -37,32 +37,6 @@ give hands-on experience on how to build peer-to-peer vs. client-to-server.
 
 Done? Great. You are all set for the workshop.
 
-## Workshop
-
-Let's start with the [first iteration](https://github.com/mxinden/libp2p-workshop/blob/iteration-1/README.md#iteration-1).
-
-## Iteration 1
-
-In case you are still on branch `main` switch over to branch `iteration-1`.
-
-```
-$ git checkout iteration-1
-```
-
-In this iteration, we will have our node implementation connect to a bootstrap node.
-
-For those interested, the above is a[multiaddr](https://github.com/multiformats/multiaddr).
-Composable and future-proof network addresses.
-
-To connect to the bootstrap node, run the command below:
-
-[//]: # (TODO add command)
-
-Given that both nodes run the [Ping protocol](https://docs.rs/libp2p-ping/latest/libp2p_ping/), they exchange Ping-Pong style messages.
-You should see the results of these message exchanges printed as logs along with the round-trip-time (RTT).
-
-Let's move on to [iteration two](https://github.com/mxinden/libp2p-workshop/blob/iteration-2/README.md#iteration-2).
-
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
