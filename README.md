@@ -48,7 +48,10 @@ For iteration 1, we want to achieve the following things:
 3. Create a `libp2p::identity::Keypair`.
 4. Create a DNS transport that is baked by TCP, upgrade it with noise and yamux.
 5. Create a `libp2p::swarm::Swarm` with the `ping::Behaviour`.
-6. Poll the swarm via `swarm.next_event()` and print some interesting events.
+6. Poll the swarm via `swarm.next_event()` and print some interesting events:
+- Established connections
+- Closed connections
+- ping round-trip time
 
 ## Additional Resources
 
