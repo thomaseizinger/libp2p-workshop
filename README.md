@@ -115,6 +115,41 @@ dial:<addr>
 quit
 ```
 
+### Iteration 5
+
+For the final iteration, we are going to connect to the universal connectivity demo.
+To do that, we need to add QUIC to our stack.
+
+The rust-libp2p implementation for QUIC is currently in alpha, meaning we need to explicitly add it to our config:
+
+```toml
+libp2p-quic = { version = "0.7.0-alpha.3", features = ["async-std"] }
+```
+
+Unfortunately, composing QUIC into the transport stack is a bit convoluted at the moment, so here is a snippet to get you going:
+
+```rust
+ let quic = quic::async_std::Transport::new(quic::Config::new(&local_key));
+
+ let dns_over_tcp = dns::DnsConfig::system(tcp::async_io::Transport::default())
+     .await?
+     .upgrade(Version::V1Lazy)
+     .authenticate(noise::NoiseAuthenticated::xx(&local_key)?)
+     .multiplex(yamux::YamuxConfig::default());
+
+ let transport = quic
+     .or_transport(dns_over_tcp)
+     .map(|either, _| match either {
+         Either::Left((peer, stream)) => (peer, StreamMuxerBox::new(stream)),
+         Either::Right((peer, stream)) => (peer, StreamMuxerBox::new(stream)),
+     })
+     .boxed();
+  ```
+
+Lastly, all we need to subscribe to the "universal-connectivity" topic and you should be receiving messages.
+
+How to send to the topic from the CLI is left as an exercise to the reader.
+
 ## Additional Resources
 
 Below are a couple of resources for those interested in reading more about
