@@ -6,12 +6,15 @@ use async_std::io::prelude::BufReadExt;
 use async_std::io::BufReader;
 use env_logger::Env;
 use futures::channel::mpsc;
+use futures::future::Either;
 use futures::{SinkExt, TryStreamExt};
+use libp2p::core::muxing::StreamMuxerBox;
 use libp2p::swarm::keep_alive;
 use libp2p::{
     core::upgrade::Version, dns, gossipsub, identify, identity, noise, ping, swarm::SwarmBuilder,
     tcp, yamux, Transport,
 };
+use libp2p_quic as quic;
 
 const BOOTSTRAP_NODE: &str = "/dns4/libp2p-workshop-bootnode.fly.dev/tcp/9999";
 
@@ -24,11 +27,20 @@ async fn main() -> anyhow::Result<()> {
     let local_peer_id = local_key.public().to_peer_id();
     log::info!("Local peer id: {local_peer_id}");
 
-    let transport = dns::DnsConfig::system(tcp::async_io::Transport::default())
+    let quic = quic::async_std::Transport::new(quic::Config::new(&local_key));
+
+    let dns_over_tcp = dns::DnsConfig::system(tcp::async_io::Transport::default())
         .await?
         .upgrade(Version::V1Lazy)
         .authenticate(noise::NoiseAuthenticated::xx(&local_key)?)
-        .multiplex(yamux::YamuxConfig::default())
+        .multiplex(yamux::YamuxConfig::default());
+
+    let transport = quic
+        .or_transport(dns_over_tcp)
+        .map(|either, _| match either {
+            Either::Left((peer, stream)) => (peer, StreamMuxerBox::new(stream)),
+            Either::Right((peer, stream)) => (peer, StreamMuxerBox::new(stream)),
+        })
         .boxed();
 
     let swarm =

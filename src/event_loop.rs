@@ -13,6 +13,11 @@ pub async fn run(mut swarm: Swarm<Behaviour>, mut commands: mpsc::Receiver<Comma
         .gossipsub
         .subscribe(&gossipsub::IdentTopic::new(CHAT_TOPIC))
         .unwrap();
+    swarm
+        .behaviour_mut()
+        .gossipsub
+        .subscribe(&gossipsub::IdentTopic::new("universal-connectivity"))
+        .unwrap();
 
     loop {
         match futures::future::select(swarm.select_next_some(), commands.next()).await {
