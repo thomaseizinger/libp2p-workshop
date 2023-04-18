@@ -22,7 +22,7 @@ give hands-on experience on how to build peer-to-peer vs. client-to-server.
 1. Clone this repository.
 
    ```sh
-   $ git clone https://github.com/mxinden/libp2p-workshop.git
+   $ git clone https://github.com/thomaseizinger/libp2p-workshop.git
    ```
 
 1. Make sure you can compile the _hello world_ program in this repository on the
